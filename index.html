@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>出行小助手 · DeepSeek × 高德开放平台</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+</head>
+<body>
+<div class="app">
+  <!-- ============ 顶栏 ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo">🧭</div>
+      <div class="brand-text">
+        <h1>出行小助手</h1>
+        <p>DeepSeek-V4.1 × 高德开放平台 · 纯前端智能体</p>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <button class="loc-chip" id="locChip" title="点击重新定位">
+        <span class="dot"></span>
+        <span id="locText">定位中…</span>
+      </button>
+      <div class="model-chip" id="modelChip" title="当前模型">deepseek-flash</div>
+      <button class="icon-btn" id="newChatBtn" title="新对话">🧹</button>
+      <button class="icon-btn" id="themeBtn" title="切换主题">🌙</button>
+      <button class="icon-btn" id="settingsBtn" title="设置">⚙️</button>
+    </div>
+  </header>
+
+  <!-- ============ 主体三栏 ============ -->
+  <main class="layout">
+    <!-- 左侧：快捷能力 -->
+    <aside class="sidebar">
+      <div class="panel-title">快捷发起</div>
+      <div class="quick-list" id="quickList">
+        <button class="quick-item" data-prompt="帮我查一下今天的天气，并给出出行穿衣建议"><span class="qi">🌤️</span><span><b>天气查询</b><i>实时 + 未来 4 天预报</i></span></button>
+        <button class="quick-item" data-prompt="定位我在哪，并介绍一下我附近的景点"><span class="qi">📍</span><span><b>IP 定位</b><i>看看我在哪、周边有啥</i></span></button>
+        <button class="quick-item" data-prompt="搜一下附近的咖啡馆，评分高的优先"><span class="qi">☕</span><span><b>周边搜索</b><i>以当前位置为圆心</i></span></button>
+        <button class="quick-item" data-prompt="从我的位置开车去杭州西湖，帮我规划路线并画在地图上"><span class="qi">🚗</span><span><b>路径规划</b><i>驾车 / 步行 / 骑行 / 公交</i></span></button>
+        <button class="quick-item" data-prompt="搜索杭州的博物馆，并在地图上标出来"><span class="qi">🔎</span><span><b>关键字搜索</b><i>全国 POI 检索</i></span></button>
+        <button class="quick-item" data-prompt="2026年最新的杭州亚运场馆开放情况怎么样？联网查一下"><span class="qi">🌐</span><span><b>联网搜索</b><i>DeepSeek 原生搜索 + 抓取</i></span></button>
+      </div>
+
+      <div class="panel-title" style="margin-top:18px">能力状态</div>
+      <div class="caps" id="caps">
+        <div class="cap" data-cap="ds"><span class="cap-dot"></span>DeepSeek 对话</div>
+        <div class="cap" data-cap="vision"><span class="cap-dot"></span>图片理解</div>
+        <div class="cap" data-cap="asr"><span class="cap-dot"></span>语音转写</div>
+        <div class="cap" data-cap="amap"><span class="cap-dot"></span>高德地图</div>
+        <div class="cap" data-cap="web"><span class="cap-dot"></span>联网搜索</div>
+      </div>
+
+      <div class="sidebar-foot">
+        <p>所有请求均由浏览器直连官方 API，Key 只保存在本机 localStorage。</p>
+      </div>
+    </aside>
+
+    <!-- 中间：对话 -->
+    <section class="chat">
+      <div class="chat-scroll" id="chatScroll">
+        <div class="welcome" id="welcome">
+          <div class="welcome-logo">🧭</div>
+          <h2>去哪儿？我帮你安排</h2>
+          <p>我能查天气、找地点、看周边、规划路线、画地图，也能看图、听语音、联网检索。</p>
+          <div class="welcome-cards">
+            <div class="wc"><b>🗣️ 语音输入</b><span>说完自动转文字发送</span></div>
+            <div class="wc"><b>🖼️ 看图出行</b><span>发张照片问这是哪儿</span></div>
+            <div class="wc"><b>🗺️ 结果可视化</b><span>POI / 路线 / 天气卡片</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer" id="composer">
+        <div class="attachments" id="attachments"></div>
+        <div class="composer-box">
+          <textarea id="input" rows="1" placeholder="问我任何出行问题，例如：从我在的位置去西湖怎么走？"></textarea>
+          <div class="composer-actions">
+            <button class="tool-btn" id="imgBtn" title="上传/粘贴图片">🖼️</button>
+            <button class="tool-btn" id="micBtn" title="语音输入">🎤</button>
+            <button class="send-btn" id="sendBtn" title="发送 (Enter)">➤</button>
+          </div>
+        </div>
+        <div class="composer-hint" id="hint">Enter 发送 · Shift+Enter 换行 · 支持拖拽/粘贴图片</div>
+        <input type="file" id="fileInput" accept="image/*" hidden multiple>
+      </div>
+    </section>
+
+    <!-- 右侧：地图与卡片 -->
+    <aside class="stage">
+      <div class="stage-head">
+        <span class="panel-title" style="margin:0">行程画布</span>
+        <div class="stage-tabs">
+          <button class="tab active" data-tab="map">地图</button>
+          <button class="tab" data-tab="list">结果</button>
+        </div>
+      </div>
+      <div class="stage-body">
+        <div class="stage-pane active" id="pane-map">
+          <div class="map-empty" id="mapEmpty">
+            <div class="me-icon">🗺️</div>
+            <p>还没有地图内容</p>
+            <span>问我地点或路线，地图会出现在这里：可拖动、缩放，点击地图还能选点</span>
+          </div>
+          <div class="map-wrap" id="mapWrap" hidden>
+            <div class="gmap" id="gmap"></div>
+            <img id="staticMap" alt="静态地图" hidden>
+            <div class="map-tools">
+              <button class="map-btn" id="mapLocate" title="回到我的位置">📍</button>
+              <button class="map-btn" id="mapExpand" title="放大地图">⤢</button>
+            </div>
+            <div class="map-caption" id="mapCaption"></div>
+          </div>
+        </div>
+        <div class="stage-pane" id="pane-list">
+          <div class="list-empty" id="listEmpty">POI、路线、天气卡片会汇总在这里</div>
+          <div id="cardList" class="card-list"></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<!-- ============ 设置弹窗 ============ -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-mask" data-close></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>设置</h3>
+      <button class="icon-btn" data-close>✕</button>
+    </div>
+    <div class="modal-body">
+      <label class="field">
+        <span>DeepSeek API Key</span>
+        <input type="password" id="dsKey" placeholder="sk-..." autocomplete="off">
+        <i>默认模型 deepseek-flash（V4.1，支持图片）；可切换 deepseek-v4-pro</i>
+      </label>
+
+      <label class="field">
+        <span>硅基流动 API Key（语音转写）</span>
+        <input type="password" id="sfKey" placeholder="sk-..." autocomplete="off">
+        <i>留空时自动降级为浏览器内置语音识别（Chrome / Edge）</i>
+      </label>
+
+      <label class="field">
+        <span>高德 Web 服务 Key</span>
+        <input type="text" id="amapKeys" placeholder="多个 Key 用逗号分隔，自动轮换" autocomplete="off">
+        <i>用于关键字/周边搜索、路径规划、天气、静态地图、IP 定位</i>
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span>对话模型</span>
+          <select id="modelSelect">
+            <option value="deepseek-flash">deepseek-flash（V4.1 · 多模态）</option>
+            <option value="deepseek-v4-pro">deepseek-v4-pro（深度推理）</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>思考强度</span>
+          <select id="effortSelect">
+            <option value="high">high（默认）</option>
+            <option value="low">low（更快）</option>
+            <option value="max">max（最强）</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="switch-list">
+        <label class="switch-row"><span>🧠 展示思考过程</span><input type="checkbox" id="swThinking" checked></label>
+        <label class="switch-row"><span>🌐 允许联网搜索（DeepSeek 原生）</span><input type="checkbox" id="swWeb" checked></label>
+        <label class="switch-row"><span>🗺️ 允许调用高德工具</span><input type="checkbox" id="swAmap" checked></label>
+      </div>
+
+      <div class="modal-actions">
+        <button class="ghost-btn" id="clearKeys">清除已保存密钥</button>
+        <button class="primary-btn" id="saveKeys">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="assets/markdown.js"></script>
+<script src="assets/amap.js"></script>
+<script src="assets/map.js"></script>
+<script src="assets/deepseek.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
