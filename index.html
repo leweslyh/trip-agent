@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>出行小助手 · DeepSeek × 高德</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11l18-8-8 18-2-8-8-2z" />
+          </svg>
+        </span>
+        <div class="brand-text">
+          <div class="brand-title">出行小助手 <span class="brand-tag">AI</span></div>
+          <div class="brand-sub">DeepSeek 智能对话 · 高德地图数据</div>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="view-switch" aria-label="视图切换">
+          <button class="view-btn is-active" data-view="chat" type="button">对话</button>
+          <button class="view-btn" data-view="result" type="button">地图与结果</button>
+        </div>
+        <button class="icon-btn" id="undoBtn" type="button" title="暂无可撤回的对话" aria-label="撤回上一轮对话" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 14L4 9l5-5" />
+            <path d="M4 9h9.5a6 6 0 010 12H10" />
+          </svg>
+        </button>
+        <button class="icon-btn" id="clearBtn" type="button" title="清空对话" aria-label="清空对话">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5" />
+          </svg>
+        </button>
+        <button class="settings-btn" id="settingsBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06a2 2 0 11-2.83 2.83l-.06-.06A1.7 1.7 0 0015 19.4a1.7 1.7 0 00-1 .6 1.7 1.7 0 00-.4 1.1V21a2 2 0 11-4 0v-.09A1.7 1.7 0 008.6 19.4a1.7 1.7 0 00-1.88.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.7 1.7 0 004.6 15a1.7 1.7 0 00-.6-1 1.7 1.7 0 00-1.1-.4H3a2 2 0 110-4h.09A1.7 1.7 0 004.6 8.6a1.7 1.7 0 00-.34-1.88l-.06-.06a2 2 0 112.83-2.83l.06.06A1.7 1.7 0 008.6 4.6a1.7 1.7 0 001-.6 1.7 1.7 0 00.4-1.1V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.51 1.7 1.7 0 001.88-.34l.06-.06a2 2 0 112.83 2.83l-.06.06A1.7 1.7 0 0019.4 8.6a1.7 1.7 0 00.6 1 1.7 1.7 0 001.1.4H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.51 1z" />
+          </svg>
+          <span>设置</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="panel chat-panel" id="chatPanel" aria-label="对话区域">
+        <div class="chat-scroll" id="chatScroll">
+          <div class="msg msg-assistant">
+            <div class="msg-avatar">AI</div>
+            <div class="msg-main">
+              <div class="msg-bubble">
+                <div class="welcome-title">你好，我是你的出行小助手</div>
+                <p>用一句话告诉我你的出行需求，我会理解你的意图，并在结果区给出清晰反馈。</p>
+                <div class="cap-grid">
+                  <div class="cap"><span class="cap-icon cap-search"></span><div><b>地点搜索</b><small>关键字 / 周边</small></div></div>
+                  <div class="cap"><span class="cap-icon cap-route"></span><div><b>路径规划</b><small>驾车 / 步行 / 公交</small></div></div>
+                  <div class="cap"><span class="cap-icon cap-weather"></span><div><b>天气查询</b><small>实时 / 未来预报</small></div></div>
+                  <div class="cap"><span class="cap-icon cap-map"></span><div><b>地图与定位</b><small>静态地图 / IP 定位</small></div></div>
+                </div>
+              </div>
+              <div class="msg-meta">首次使用请先点击右上角「设置」填写 API Key</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="composer">
+          <div class="quick-chips" id="quickChips">
+            <button class="chip" type="button" data-query="附近的咖啡馆">附近的咖啡馆</button>
+            <button class="chip" type="button" data-query="北京天气怎么样">北京天气</button>
+            <button class="chip" type="button" data-query="从天安门到故宫怎么走">天安门到故宫</button>
+            <button class="chip" type="button" data-query="搜索星巴克">搜索星巴克</button>
+            <button class="chip" type="button" data-query="我在哪">我在哪</button>
+          </div>
+          <form id="chatForm" class="composer-box">
+            <textarea id="chatInput" rows="1" placeholder="例如：帮我找附近的咖啡馆，或问「从天安门到故宫怎么走」"></textarea>
+            <button id="sendBtn" type="submit" aria-label="发送">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+              </svg>
+            </button>
+          </form>
+          <div class="composer-hint">Enter 发送 · Shift+Enter 换行 · 支持撤回上一轮对话</div>
+        </div>
+      </section>
+
+      <section class="panel result-panel" id="resultPanel" aria-label="地图与结果区域">
+        <div class="result-head">
+          <div>
+            <h2>地图与结果</h2>
+            <p id="resultSubtitle">等待你的出行指令</p>
+          </div>
+          <span class="status-pill" id="statusPill">未配置</span>
+        </div>
+        <div class="result-scroll" id="resultScroll">
+          <div class="map-frame" id="mapFrame">
+            <div class="map-placeholder" id="mapPlaceholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3-6-3zM9 3v15M15 6v15" />
+              </svg>
+              <p>地图将在这里显示</p>
+              <small>完成一次地点或路线查询后自动生成静态地图</small>
+            </div>
+            <img id="staticMap" class="static-map" alt="高德静态地图" hidden />
+            <div class="map-caption" id="mapCaption" hidden></div>
+          </div>
+          <div id="resultCards" class="result-cards"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-mask" id="settingsMask" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="modal-head">
+        <h3 id="settingsTitle">API 配置</h3>
+        <button class="modal-close" id="closeSettings" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-note">密钥仅保存在你的浏览器本地（localStorage），不会上传到任何服务器。</p>
+        <label class="field">
+          <span>DeepSeek API Key</span>
+          <input type="password" id="deepseekKey" placeholder="sk-..." autocomplete="off" />
+          <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">获取 DeepSeek Key ↗</a>
+        </label>
+        <label class="field">
+          <span>高德开放平台 Web 服务 Key</span>
+          <input type="password" id="amapKey" placeholder="请输入高德 Web 服务 Key" autocomplete="off" />
+          <a href="https://console.amap.com/dev/key/app" target="_blank" rel="noopener">获取高德 Key ↗</a>
+        </label>
+        <div class="modal-tip">
+          <strong>提示</strong>：高德 Key 需选择「Web 服务」类型；若提示配额或权限问题，请在高德控制台检查 Key 类型与域名设置。未配置 DeepSeek Key 时，应用会自动使用内置规则识别意图。
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" id="cancelSettings" type="button">取消</button>
+        <button class="btn primary" id="saveSettings" type="button">保存配置</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
