@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>出行小助手 · DeepSeek × 高德</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">行</div>
+      <div>
+        <h1>出行小助手</h1>
+        <p>DeepSeek × 高德智能体</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>🧭 快捷指令</h3>
+      <div class="quick-item" data-prompt="北京今天天气怎么样？"><span class="ico">🌤</span>查询天气</div>
+      <div class="quick-item" data-prompt="帮我规划从天安门到颐和园的驾车路线"><span class="ico">🚗</span>路径规划</div>
+      <div class="quick-item" data-prompt="搜索西湖附近的咖啡馆"><span class="ico">☕</span>周边搜索</div>
+      <div class="quick-item" data-prompt="搜索'上海外滩'附近的酒店"><span class="ico">🔍</span>关键字搜索</div>
+      <div class="quick-item" data-prompt="帮我看看我现在在哪个城市（IP定位）"><span class="ico">📍</span>IP 定位</div>
+      <div class="quick-item" data-prompt="搜索杭州三日游最新攻略（请联网）"><span class="ico">🌐</span>联网搜索</div>
+    </div>
+
+    <div class="panel loc-card">
+      <h3>📍 我的位置</h3>
+      <div class="loc-row">
+        <div>
+          <div class="loc-city" id="locCity">未定位</div>
+          <div class="loc-detail" id="locDetail">点击下方按钮获取当前位置</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btnLocate">定位</button>
+      </div>
+      <div class="loc-weather" id="locWeather"></div>
+    </div>
+
+    <div class="panel">
+      <h3>⚙️ 模型</h3>
+      <select class="model-select" id="modelSelect">
+        <option value="deepseek-flash" selected>DeepSeek V4.1 Flash（最新 · 默认）</option>
+        <option value="deepseek-v4-pro">DeepSeek V4 Pro</option>
+      </select>
+      <div style="margin-top:10px;"><button class="btn btn-primary btn-block" id="btnSettings">🔑 配置 API Key</button></div>
+      <div style="margin-top:8px;"><button class="btn btn-ghost btn-block" id="btnClear">🗑 清空对话</button></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="title">出行小助手智能体</div>
+        <div class="sub">关键字搜索 · 周边搜索 · 路径规划 · 天气 · 静态地图 · IP定位 · 联网搜索</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost btn-sm" id="btnLocateMobile">📍 定位</button>
+        <button class="btn btn-ghost btn-sm" id="btnSettingsMobile">⚙️ 设置</button>
+      </div>
+    </div>
+
+    <div class="chat" id="chat">
+      <div class="chat-inner" id="chatInner"></div>
+    </div>
+
+    <div class="input-wrap">
+      <div class="input-box">
+        <textarea id="input" rows="1" placeholder="输入你的出行需求，例如：帮我规划从天安门到颐和园的驾车路线…"></textarea>
+        <button class="send-btn" id="btnSend" title="发送">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 2 11 13M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+      <div class="hint">提示：路径规划、天气、地图等需要「高德 Key」；联网搜索使用 DeepSeek 内置搜索工具。内容由 AI 生成，仅供参考。</div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-mask" id="settingsModal">
+  <div class="modal">
+    <h2>API 配置</h2>
+    <div class="m-sub">密钥仅保存在浏览器本地（localStorage），不会上传到任何服务器。</div>
+    <div class="field">
+      <label>DeepSeek API Key</label>
+      <input id="inpDeepseekKey" type="password" placeholder="sk-..." autocomplete="off">
+      <div class="desc">前往 platform.deepseek.com 申请。用于大模型对话与内置联网搜索。</div>
+    </div>
+    <div class="field">
+      <label>高德开放平台 Key（Web服务）</label>
+      <input id="inpAmapKey" type="password" placeholder="高德 Web服务 Key" autocomplete="off">
+      <div class="desc">前往 console.amap.com 创建「Web服务」类型应用获取。用于搜索/路径/天气/地图/IP定位。</div>
+    </div>
+    <div class="warn">⚠️ 纯前端直连 API 会把 Key 暴露在浏览器中，请仅在本机或可信环境使用，不要用于公开部署。</div>
+    <div class="btns">
+      <button class="btn btn-ghost" id="btnCloseSettings">取消</button>
+      <button class="btn btn-primary" id="btnSaveSettings">保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
