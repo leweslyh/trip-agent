@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>出行小助手 · DeepSeek × 高德开放平台</title>
+<meta name="description" content="基于 DeepSeek 大模型与高德开放平台的纯前端出行智能体：关键字搜索、周边搜索、路径规划、天气查询、静态地图、IP 定位。" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">行</div>
+      <div class="brand-text">
+        <h1>出行小助手</h1>
+        <p>DeepSeek 大模型 · 高德开放平台</p>
+      </div>
+    </div>
+    <div class="status-bar">
+      <span class="pill" id="pillModel"><i class="dot"></i><span>模型未配置</span></span>
+      <span class="pill" id="pillMap"><i class="dot"></i><span>地图未就绪</span></span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn ghost" id="btnSettings" type="button">API 设置</button>
+      <button class="btn ghost" id="btnClear" type="button">清空会话</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ================= 对话区 ================= -->
+    <section class="chat-panel">
+      <div class="chat-scroll" id="chatScroll">
+        <div class="welcome" id="welcome">
+          <div class="welcome-hero">
+            <div class="hero-badge">智能体已就绪</div>
+            <h2>今天想去哪儿？</h2>
+            <p>我可以调用高德开放平台的搜索、路径规划、天气、IP 定位与静态地图能力，帮你把行程安排明白。</p>
+          </div>
+          <div class="suggests">
+            <button class="suggest" data-prompt="帮我查一下杭州现在的天气和未来三天预报">
+              <span class="ic">☁</span><span><b>查天气</b><small>杭州实时天气 + 预报</small></span>
+            </button>
+            <button class="suggest" data-prompt="搜索北京故宫博物院，并把结果显示在地图上">
+              <span class="ic">◎</span><span><b>关键字搜索</b><small>按名称找地点</small></span>
+            </button>
+            <button class="suggest" data-prompt="我在杭州西湖，帮我找附近 1 公里内的咖啡馆">
+              <span class="ic">⌖</span><span><b>周边搜索</b><small>以当前位置为圆心</small></span>
+            </button>
+            <button class="suggest" data-prompt="帮我规划从杭州东站到西湖风景区的驾车路线，并给出距离和耗时">
+              <span class="ic">⇢</span><span><b>路径规划</b><small>驾车 / 步行 / 骑行 / 公交</small></span>
+            </button>
+            <button class="suggest" data-prompt="用 IP 定位看看我当前在哪个城市">
+              <span class="ic">◉</span><span><b>IP 定位</b><small>判断所在城市</small></span>
+            </button>
+            <button class="suggest" data-prompt="生成一张上海外滩的静态地图给我看看">
+              <span class="ic">▣</span><span><b>静态地图</b><small>生成图片快照</small></span>
+            </button>
+          </div>
+          <p class="welcome-tip">请点右上角「API 设置」填入 DeepSeek Key 与高德 Key 后开始对话；请勿在仓库中提交明文 Key。</p>
+        </div>
+      </div>
+
+      <form class="composer" id="composer" autocomplete="off">
+        <textarea id="input" rows="1" placeholder="例如：帮我找西湖附近 1 公里的咖啡馆，再规划步行路线"></textarea>
+        <button class="send" id="btnSend" type="submit" title="发送 (Enter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12 2-12 2z"/></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- ================= 地图区 ================= -->
+    <section class="map-panel">
+      <div class="map-canvas" id="map"></div>
+
+      <div class="map-placeholder" id="mapPlaceholder">
+        <img class="ph-static" id="phStatic" alt="静态地图" hidden />
+        <div class="ph-inner">
+          <div class="ph-ring" id="phRing"></div>
+          <h3 id="phTitle">地图尚未加载</h3>
+          <p id="phDesc">填写高德 Web 端（JS API）Key 后即可显示交互地图<br />只有「Web 服务」Key 也能用 IP 定位、天气与静态地图</p>
+          <button class="btn primary" id="btnPlaceholderSettings" type="button">去填写 Key</button>
+        </div>
+      </div>
+
+      <!-- 天气卡片 -->
+      <div class="float-card weather-card" id="weatherCard" hidden>
+        <div class="wc-head">
+          <div>
+            <h4 id="wcCity">—</h4>
+            <p id="wcReport">—</p>
+          </div>
+          <div class="wc-temp"><span id="wcTemp">--</span><small>℃</small></div>
+        </div>
+        <div class="wc-meta" id="wcMeta"></div>
+        <div class="wc-forecast" id="wcForecast"></div>
+      </div>
+
+      <!-- 路线卡片 -->
+      <div class="float-card route-card" id="routeCard" hidden>
+        <div class="rc-head">
+          <span class="rc-mode" id="rcMode">驾车</span>
+          <button class="icon-btn" id="rcClose" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="rc-body">
+          <div class="rc-metric"><b id="rcDistance">—</b><small>全程</small></div>
+          <div class="rc-metric"><b id="rcTime">—</b><small>预计耗时</small></div>
+        </div>
+        <ol class="rc-steps" id="rcSteps"></ol>
+      </div>
+
+      <!-- 静态地图卡片 -->
+      <div class="float-card static-card" id="staticCard" hidden>
+        <div class="sc-head">
+          <span>静态地图快照</span>
+          <button class="icon-btn" id="scClose" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="sc-body">
+          <img id="scImg" alt="高德静态地图" />
+          <div class="sc-loading" id="scLoading">正在生成…</div>
+        </div>
+        <div class="sc-foot" id="scFoot"></div>
+      </div>
+
+      <div class="map-toolbar">
+        <button type="button" data-action="locate" title="IP 定位">IP 定位</button>
+        <button type="button" data-action="static" title="生成静态地图">静态地图</button>
+        <button type="button" data-action="weather" title="查询天气">天气</button>
+        <button type="button" data-action="clear" title="清除图层">清除</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ================= 设置弹窗 ================= -->
+<div class="modal" id="settingsModal" hidden>
+  <div class="modal-mask" data-close="1"></div>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-head">
+      <h3 id="settingsTitle">API 与模型设置</h3>
+      <button class="icon-btn" data-close="1" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <div class="group-title">DeepSeek 大模型</div>
+        <label class="field">
+          <span>API Key <em>必填</em></span>
+          <input id="inDeepseekKey" type="password" placeholder="sk-xxxxxxxxxxxxxxxx" spellcheck="false" />
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>接口地址</span>
+            <input id="inDeepseekBase" type="text" placeholder="https://api.deepseek.com" spellcheck="false" />
+          </label>
+          <label class="field">
+            <span>模型</span>
+            <input id="inDeepseekModel" type="text" placeholder="deepseek-chat" spellcheck="false" />
+          </label>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="group-title">高德开放平台</div>
+        <label class="field">
+          <span>Web 服务 Key <em>推荐</em></span>
+          <input id="inAmapWebKey" type="text" placeholder="restapi 用：IP 定位、天气、地理编码、POI 搜索、静态地图" spellcheck="false" />
+        </label>
+        <label class="field">
+          <span>Web 端（JS API）Key <em>可选</em></span>
+          <input id="inAmapJsKey" type="text" placeholder="仅用于可拖拽交互地图与路径规划" spellcheck="false" />
+        </label>
+        <label class="field">
+          <span>安全密钥 securityJsCode</span>
+          <input id="inAmapSecurity" type="text" placeholder="仅 JS API Key 需要（2021-12 之后申请）" spellcheck="false" />
+        </label>
+      </div>
+
+      <p class="modal-note">
+        所有 Key 仅保存在本机浏览器 <code>localStorage</code> 中，不会上传到任何服务器。本项目为纯前端实现，请勿在公开站点使用个人 Key。
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="btnResetKeys" type="button">清空</button>
+      <button class="btn primary" id="btnSaveKeys" type="button">保存并初始化</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="js/config.local.js"></script>
+<script src="js/config.js"></script>
+<script src="js/amap.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/agent.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
