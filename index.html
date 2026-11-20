@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<title>出行小助手 · DeepSeek 智能体</title>
+<meta name="description" content="基于 DeepSeek 大模型与高德开放平台的纯前端出行助手：关键字搜索、周边搜索、路径规划、天气查询、静态地图与 IP 定位。" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b63f2'/%3E%3Cpath d='M32 12c-7.7 0-14 6.2-14 13.9C18 36.6 32 52 32 52s14-15.4 14-26.1C46 18.2 39.7 12 32 12z' fill='%23fff'/%3E%3Ccircle cx='32' cy='26' r='5.6' fill='%230b63f2'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="app-loading">
+
+<!-- ===== SVG 图标库 ===== -->
+<svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M4.2 11.3 20 4l-7.2 15.8-1.9-6.4-6.7-2.1Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m10.9 13.4 4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="8.6" cy="10" r="1.7" fill="currentColor"/><path d="m4 17 4.6-4.4a2 2 0 0 1 2.7 0L20 19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5" fill="currentColor"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.8v2.4M12 18.8v2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7M6.5 7l.9 13.2h9.2L17.5 7M10 11v5.5M14 11v5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m15.6 15.6 4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-nearby" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-dasharray="2 3"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="18" cy="6" r="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.4 17.2h4.1a3.2 3.2 0 0 0 0-6.4h-1a3.2 3.2 0 0 1 0-6.4h4.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-weather" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9 2.6v1.6M2.6 9h1.6M4.4 4.4l1.2 1.2M13.6 4.4l-1.2 1.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M7.5 18.6h9.2a3.2 3.2 0 0 0 .4-6.4 4.5 4.5 0 0 0-8.5-1 3.7 3.7 0 0 0-1.1 7.4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6.5 6-2.2 6 2.2 6-2.2v13.2l-6 2.2-6-2.2-6 2.2V6.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 4.3v13.2M15 6.5v13.2" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 1.8v3M12 19.2v3M1.8 12h3M19.2 12h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.6 12h16.8M12 3.4c2.4 2.3 3.6 5.2 3.6 8.6S14.4 18.3 12 20.6C9.6 18.3 8.4 15.4 8.4 12S9.6 5.7 12 3.4Z" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2.6l2.1 5.6 5.6 2.1-5.6 2.1L12 18l-2.1-5.6L4.3 10.3l5.6-2.1L12 2.6Z" fill="currentColor"/><path d="M18.6 15.6l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9.9-2.3Z" fill="currentColor" opacity=".6"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15.5" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m11 12.6 7.4-7.4 2.2 2.2-1.6 1.6 1.6 1.6-2.8 2.8-1.6-1.6-1.4 1.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M15 6.6V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20.4 12a8.4 8.4 0 1 1-2.6-6.1M20.4 4.2v5h-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3.5v11M7.5 10.5 12 15l4.5-4.5M4 19h16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="app-shell">
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="brand">
+        <div class="brand-mark"><svg><use href="#i-locate"></use></svg></div>
+        <div class="brand-text">
+          <strong>出行小助手</strong>
+          <span>DeepSeek · 高德</span>
+        </div>
+      </div>
+      <button class="icon-btn sidebar-close" id="btnCloseSidebar" title="收起侧栏" aria-label="收起侧栏">
+        <svg><use href="#i-close"></use></svg>
+      </button>
+    </div>
+
+    <div class="sidebar-scroll">
+      <section class="side-block">
+        <h3 class="side-title">快捷能力</h3>
+        <div class="quick-list">
+          <button class="quick-item" data-prompt="帮我找一下附近的咖啡店，按距离排序">
+            <svg><use href="#i-nearby"></use></svg><span>周边搜索</span>
+          </button>
+          <button class="quick-item" data-prompt="规划一条从杭州东站到西湖风景名胜区的驾车路线">
+            <svg><use href="#i-route"></use></svg><span>路径规划</span>
+          </button>
+          <button class="quick-item" data-prompt="查一下杭州现在的天气和未来三天的预报">
+            <svg><use href="#i-weather"></use></svg><span>天气查询</span>
+          </button>
+          <button class="quick-item" data-prompt="搜索杭州西湖附近评分最高的餐厅">
+            <svg><use href="#i-search"></use></svg><span>关键字搜索</span>
+          </button>
+          <button class="quick-item" data-prompt="根据我的 IP 判断我在哪个城市，并推荐附近值得去的地方">
+            <svg><use href="#i-locate"></use></svg><span>IP 定位</span>
+          </button>
+          <button class="quick-item" data-prompt="把西湖景区周边 3 公里的地图展示出来">
+            <svg><use href="#i-map"></use></svg><span>静态地图</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="side-block">
+        <h3 class="side-title">运行状态</h3>
+        <div class="status-list">
+          <div class="status-row">
+            <span class="dot" id="dotDeepseek"></span>
+            <span class="status-label">DeepSeek</span>
+            <span class="status-value" id="statusDeepseek">未配置</span>
+          </div>
+          <div class="status-row">
+            <span class="dot" id="dotAmap"></span>
+            <span class="status-label">高德地图</span>
+            <span class="status-value" id="statusAmap">未配置</span>
+          </div>
+          <div class="status-row">
+            <span class="dot" id="dotAsr"></span>
+            <span class="status-label">语音转文字</span>
+            <span class="status-value" id="statusAsr">未配置</span>
+          </div>
+        </div>
+        <button class="side-action" id="btnOpenSettings">
+          <svg><use href="#i-key"></use></svg><span>配置密钥</span>
+        </button>
+      </section>
+
+      <section class="side-block side-tip">
+        <h3 class="side-title">纯前端说明</h3>
+        <p>所有请求由浏览器直接发起，密钥仅保存在本机浏览器 <code>localStorage</code>，不会上传到任何服务器。请勿在公共设备上填写密钥。</p>
+      </section>
+    </div>
+
+    <div class="sidebar-foot">
+      <span class="ver">v2.0 · Multimodal</span>
+    </div>
+  </aside>
+  <div class="sidebar-mask" id="sidebarMask"></div>
+
+  <!-- ===== 主区 ===== -->
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn only-mobile" id="btnOpenSidebar" title="展开侧栏" aria-label="展开侧栏">
+        <svg><use href="#i-menu"></use></svg>
+      </button>
+      <div class="topbar-title">
+        <h1>出行小助手</h1>
+        <div class="chips">
+          <span class="chip chip-model" id="chipModel">DeepSeek-V3.2</span>
+          <span class="chip" id="chipSearch"><svg><use href="#i-globe"></use></svg>联网</span>
+          <span class="chip" id="chipVision"><svg><use href="#i-image"></use></svg>识图</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="btnNewChat" title="新对话" aria-label="新对话">
+          <svg><use href="#i-plus"></use></svg>
+        </button>
+        <button class="icon-btn" id="btnClear" title="清空对话" aria-label="清空对话">
+          <svg><use href="#i-trash"></use></svg>
+        </button>
+        <button class="icon-btn" id="btnSettingsTop" title="设置" aria-label="设置">
+          <svg><use href="#i-settings"></use></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="chat-scroll" id="chatScroll">
+      <div class="chat-inner">
+        <!-- 欢迎页 -->
+        <section class="welcome" id="welcome">
+          <div class="welcome-glow"></div>
+          <div class="welcome-badge"><svg><use href="#i-spark"></use></svg>DeepSeek × 高德开放平台</div>
+          <h2>一句话，安排好<em>整段行程</em></h2>
+          <p class="welcome-sub">搜索地点、规划路线、查询天气、看图识路、语音提问——由大模型自动调用地图能力完成。</p>
+          <div class="welcome-grid">
+            <button class="welcome-card" data-prompt="我在杭州东站，帮我在附近找一家评分 4.5 以上的杭帮菜馆，并规划步行路线">
+              <div class="wc-icon"><svg><use href="#i-nearby"></use></svg></div>
+              <strong>附近有什么好吃的</strong>
+              <span>周边搜索 + 评分筛选</span>
+            </button>
+            <button class="welcome-card" data-prompt="明天从上海去杭州自驾一日游，帮我规划路线并看一下天气">
+              <div class="wc-icon"><svg><use href="#i-route"></use></svg></div>
+              <strong>规划自驾一日游</strong>
+              <span>路径规划 + 天气</span>
+            </button>
+            <button class="welcome-card" data-prompt="这是我拍的街景照片，帮我识别这是哪里，并推荐附近景点">
+              <div class="wc-icon"><svg><use href="#i-image"></use></svg></div>
+              <strong>拍照识图问路</strong>
+              <span>图片理解 + 周边探索</span>
+            </button>
+            <button class="welcome-card" data-prompt="用语音告诉我：深圳南山区有什么值得逛的商场？">
+              <div class="wc-icon"><svg><use href="#i-mic"></use></svg></div>
+              <strong>按住说话提问</strong>
+              <span>硅基流动语音转文字</span>
+            </button>
+          </div>
+        </section>
+
+        <div class="messages" id="messages"></div>
+      </div>
+    </div>
+
+    <!-- ===== 输入区 ===== -->
+    <div class="composer-wrap">
+      <div class="composer" id="composer">
+        <div class="attach-strip" id="attachStrip"></div>
+
+        <div class="composer-main">
+          <textarea id="input" rows="1" placeholder="问问出行小助手，例如：杭州西湖附近有什么好逛的？" autocomplete="off"></textarea>
+
+          <div class="composer-side">
+            <button class="tool-btn" id="btnUpload" title="上传图片（支持粘贴 / 拖拽）" aria-label="上传图片">
+              <svg><use href="#i-image"></use></svg>
+            </button>
+            <button class="tool-btn" id="btnMic" title="语音输入" aria-label="语音输入">
+              <svg><use href="#i-mic"></use></svg>
+            </button>
+            <button class="send-btn" id="btnSend" title="发送" aria-label="发送" disabled>
+              <svg><use href="#i-send"></use></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="recording-bar" id="recordingBar">
+          <span class="rec-dot"></span>
+          <span class="rec-text">正在录音</span>
+          <span class="rec-time" id="recTime">00:00</span>
+          <div class="rec-wave" id="recWave"></div>
+          <button class="rec-cancel" id="btnRecCancel">取消</button>
+          <button class="rec-done" id="btnRecDone">完成</button>
+        </div>
+
+        <input type="file" id="fileInput" accept="image/*" multiple hidden />
+      </div>
+      <div class="composer-foot">
+        <span id="composerHint">Enter 发送 · Shift + Enter 换行 · 可粘贴图片</span>
+        <span class="foot-right">
+          <label class="switch-inline" title="让模型自动调用高德与联网工具">
+            <input type="checkbox" id="toggleTools" checked />
+            <span>智能体工具</span>
+          </label>
+          <label class="switch-inline" title="启用内置网页检索工具（web_search / web_fetch）">
+            <input type="checkbox" id="toggleSearch" checked />
+            <span>联网搜索</span>
+          </label>
+        </span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ===== 设置抽屉 ===== -->
+<div class="modal" id="settingsModal" aria-hidden="true">
+  <div class="modal-mask" data-close="1"></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-head">
+      <h2 id="settingsTitle">连接配置</h2>
+      <button class="icon-btn" data-close="1" aria-label="关闭"><svg><use href="#i-close"></use></svg></button>
+    </div>
+
+    <div class="modal-body">
+      <section class="cfg-group">
+        <div class="cfg-head">
+          <h3><span class="cfg-dot ds"></span>DeepSeek 大模型</h3>
+          <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">获取 API Key</a>
+        </div>
+        <label class="field">
+          <span>API Key</span>
+          <input type="password" id="cfgDeepseekKey" placeholder="sk-..." autocomplete="off" spellcheck="false" />
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>接口地址</span>
+            <input type="text" id="cfgDeepseekBase" placeholder="https://api.deepseek.com" spellcheck="false" />
+          </label>
+          <label class="field">
+            <span>模型</span>
+            <select id="cfgDeepseekModel">
+              <option value="deepseek-v4-pro">deepseek-v4-pro（V4 Pro 通用·推荐）</option>
+              <option value="deepseek-flash">deepseek-flash（V4 Flash 快速）</option>
+              <option value="deepseek-chat">deepseek-chat（旧版 V3.2 兼容）</option>
+              <option value="deepseek-reasoner">deepseek-reasoner（旧版深度思考）</option>
+            </select>
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field">
+            <span>自定义模型 ID（可选）</span>
+            <input type="text" id="cfgDeepseekModelCustom" placeholder="例如 deepseek-v3.2-exp" spellcheck="false" />
+          </label>
+          <label class="field">
+            <span>温度</span>
+            <input type="number" id="cfgTemperature" min="0" max="2" step="0.1" value="0.7" />
+          </label>
+        </div>
+        <div class="cfg-actions">
+          <button class="ghost-btn" id="btnFetchModels"><svg><use href="#i-refresh"></use></svg>拉取账号可用模型</button>
+          <button class="ghost-btn" id="btnTestDeepseek"><svg><use href="#i-check"></use></svg>测试连接</button>
+        </div>
+        <p class="cfg-hint" id="modelListHint">默认 deepseek-chat 指向 DeepSeek 最新通用模型，支持工具调用与图片理解。</p>
+      </section>
+
+      <section class="cfg-group">
+        <div class="cfg-head">
+          <h3><span class="cfg-dot amap"></span>高德开放平台</h3>
+          <a href="https://console.amap.com/dev/key/app" target="_blank" rel="noopener">申请 Web 服务 Key</a>
+        </div>
+        <label class="field">
+          <span>Web 服务 API Key</span>
+          <input type="password" id="cfgAmapKey" placeholder="高德 Web 服务 Key（非 JS API Key）" autocomplete="off" spellcheck="false" />
+        </label>
+        <p class="cfg-hint">使用 Web 服务接口（JSONP 调用，无跨域限制），覆盖搜索 / 路径 / 天气 / 静态地图 / IP 定位。请在高德控制台把 Key 类型选为「Web服务」。</p>
+      </section>
+
+      <section class="cfg-group">
+        <div class="cfg-head">
+          <h3><span class="cfg-dot asr"></span>硅基流动 · 语音转文字</h3>
+          <a href="https://cloud.siliconflow.cn/account/ak" target="_blank" rel="noopener">获取 API Key</a>
+        </div>
+        <label class="field">
+          <span>API Key</span>
+          <input type="password" id="cfgSiliconKey" placeholder="sk-..." autocomplete="off" spellcheck="false" />
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>转写模型</span>
+            <select id="cfgAsrModel">
+              <option value="FunAudioLLM/SenseVoiceSmall">SenseVoiceSmall（快速·推荐）</option>
+              <option value="TeleAI/TeleSpeechASR">TeleSpeechASR</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>接口地址</span>
+            <input type="text" id="cfgSiliconBase" placeholder="https://api.siliconflow.cn/v1" spellcheck="false" />
+          </label>
+        </div>
+        <p class="cfg-hint">录音在浏览器本地完成，仅上传音频片段用于转写，转写结果直接填入输入框。</p>
+      </section>
+
+      <section class="cfg-group">
+        <div class="cfg-head"><h3><span class="cfg-dot sys"></span>智能体行为</h3></div>
+        <label class="field">
+          <span>默认城市（无定位时的兜底）</span>
+          <input type="text" id="cfgCity" placeholder="例如 杭州" />
+        </label>
+        <label class="field">
+          <span>系统提示词（可自定义）</span>
+          <textarea id="cfgSystem" rows="4" spellcheck="false"></textarea>
+        </label>
+        <label class="switch-row">
+          <span>拍照识图时自动附带周边搜索</span>
+          <input type="checkbox" id="cfgAutoGeo" />
+        </label>
+      </section>
+    </div>
+
+    <div class="modal-foot">
+      <button class="ghost-btn" id="btnResetCfg">恢复默认</button>
+      <div class="modal-foot-right">
+        <button class="ghost-btn" data-close="1">取消</button>
+        <button class="primary-btn" id="btnSaveCfg">保存配置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 图片查看器 ===== -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="icon-btn lightbox-close" id="btnCloseLightbox" aria-label="关闭"><svg><use href="#i-close"></use></svg></button>
+  <img id="lightboxImg" alt="图片预览" />
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="js/utils.js"></script>
+<script src="js/store.js"></script>
+<script src="js/markdown.js"></script>
+<script src="js/amap.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/asr.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
