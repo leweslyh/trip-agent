@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="基于 DeepSeek 大模型与高德开放平台的纯前端 AI 出行智能助手">
+  <title>行知 TripMind · AI 出行智能助手</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.63 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.63a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.37 9v.09a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51.88Z"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/><path d="M12 12 19 5"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M8.6 17.5H14a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h5.4"/></symbol>
+  <symbol id="i-weather" viewBox="0 0 24 24"><path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.3 11.2 3.9 3.9 0 0 0 7 19h10.5Z"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"/><path d="M9 3v15M15 6v15"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="m3 3 18 18M10.6 5.2A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3 3.7M6.6 6.7A17 17 0 0 0 2 12s3.6 7 10 7a10 10 0 0 0 4-.8"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z"/><path d="m19 17 .7 1.8L21.5 19.5l-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7L19 17Z"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 17h14M6 17v2M18 17v2M4 13l2-6h12l2 6v4H4v-4Z"/><path d="M4 13h16M8 13h.01M16 13h.01"/></symbol>
+  <symbol id="i-walk" viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="m10 21 2-5-2-3-2 3-2 1M12 16l3 3 2 2M8 8l4-1 3 3 3 1M12 7l-1 6 4 2"/></symbol>
+  <symbol id="i-bus" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 11h16M8 21v-3M16 21v-3M8 14h.01M16 14h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-distance" viewBox="0 0 24 24"><path d="M4 20 20 4M6 4v4h4M14 20h4v-4"/><path d="m9 15 6-6"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></symbol>
+</svg>
+
+<div class="app-shell">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><svg class="icon"><use href="#i-compass"/></svg></div>
+      <div class="brand-text">
+        <h1>行知 <span>TripMind</span></h1>
+        <p>DeepSeek × 高德开放平台 · AI 出行智能体</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="status-chip" id="statusChip"><i class="dot"></i><span id="statusText">检测中</span></span>
+      <button class="icon-btn" id="themeBtn" title="切换主题" aria-label="切换主题"><svg class="icon"><use href="#i-moon"/></svg></button>
+      <button class="icon-btn" id="resetBtn" title="新建对话" aria-label="新建对话"><svg class="icon"><use href="#i-refresh"/></svg></button>
+      <button class="primary-btn" id="settingsBtn"><svg class="icon"><use href="#i-settings"/></svg><span>设置</span></button>
+    </div>
+  </header>
+
+  <main class="chat-area" id="chatArea">
+    <section class="welcome" id="welcome">
+      <div class="welcome-glow"></div>
+      <div class="welcome-badge"><svg class="icon"><use href="#i-spark"/></svg> 智能体已就绪</div>
+      <h2>想去哪儿？交给行知。</h2>
+      <p class="welcome-sub">用一句话告诉我你的出行需求，我会理解意图、调用地图工具，并返回真实可用的结果。</p>
+      <div class="feature-grid" id="featureGrid">
+        <button class="feature-card" data-query="搜索北京的故宫博物院">
+          <span class="feature-icon c1"><svg class="icon"><use href="#i-search"/></svg></span>
+          <span class="feature-name">关键字搜索</span>
+          <span class="feature-desc">找地点、查地址、看详情</span>
+        </button>
+        <button class="feature-card" data-query="搜索天安门附近 2 公里内的地铁站">
+          <span class="feature-icon c2"><svg class="icon"><use href="#i-radar"/></svg></span>
+          <span class="feature-name">周边搜索</span>
+          <span class="feature-desc">以某点为中心发现周边</span>
+        </button>
+        <button class="feature-card" data-query="规划从故宫到三里屯的驾车路线">
+          <span class="feature-icon c3"><svg class="icon"><use href="#i-route"/></svg></span>
+          <span class="feature-name">路径规划</span>
+          <span class="feature-desc">驾车 / 步行 / 公交方案</span>
+        </button>
+        <button class="feature-card" data-query="上海今天天气怎么样？未来三天呢？">
+          <span class="feature-icon c4"><svg class="icon"><use href="#i-weather"/></svg></span>
+          <span class="feature-name">天气查询</span>
+          <span class="feature-desc">实时天气与多日预报</span>
+        </button>
+        <button class="feature-card" data-query="给我一张西湖的静态地图">
+          <span class="feature-icon c5"><svg class="icon"><use href="#i-map"/></svg></span>
+          <span class="feature-name">静态地图</span>
+          <span class="feature-desc">标记位置，直观呈现</span>
+        </button>
+        <button class="feature-card" data-query="我的 IP 在哪里？">
+          <span class="feature-icon c6"><svg class="icon"><use href="#i-pin"/></svg></span>
+          <span class="feature-name">IP 定位</span>
+          <span class="feature-desc">识别当前网络位置</span>
+        </button>
+      </div>
+      <p class="welcome-note"><svg class="icon"><use href="#i-info"/></svg> 密钥仅保存在你的浏览器本地，页面直连官方 API，不经过任何第三方服务器。</p>
+    </section>
+
+    <div class="messages" id="messages"></div>
+  </main>
+
+  <footer class="composer">
+    <div class="quick-actions" id="quickActions">
+      <span class="quick-label">试试这样问</span>
+      <button class="quick-chip" data-query="附近的咖啡馆有哪些？">附近咖啡馆</button>
+      <button class="quick-chip" data-query="北京到杭州怎么走？给我开车路线">跨城驾车</button>
+      <button class="quick-chip" data-query="广州明天会下雨吗">广州天气</button>
+      <button class="quick-chip" data-query="我在哪个城市？">我在哪</button>
+    </div>
+    <div class="input-wrap" id="inputWrap">
+      <textarea id="userInput" rows="1" placeholder="描述你的出行需求，例如：帮我找一下成都的火锅店…"></textarea>
+      <button class="send-btn" id="sendBtn" title="发送" aria-label="发送"><svg class="icon"><use href="#i-send"/></svg></button>
+    </div>
+    <p class="composer-hint">Enter 发送 · Shift + Enter 换行 · 回答由 AI 生成，出行前请核对实时信息</p>
+  </footer>
+</div>
+
+<div class="modal-backdrop" id="settingsModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="settingsTitle">连接设置</h3>
+        <p>配置 API 密钥，页面将直连官方服务</p>
+      </div>
+      <button class="icon-btn" id="closeSettings" aria-label="关闭"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="setting-group">
+        <div class="group-title"><span class="group-badge ai">AI</span> 大模型引擎</div>
+        <label class="field">
+          <span class="field-label">DeepSeek API Key <em>主引擎</em></span>
+          <span class="input-with-eye">
+            <input type="password" id="deepseekKey" autocomplete="off" spellcheck="false" placeholder="sk-...">
+            <button type="button" class="eye-btn" data-target="deepseekKey" aria-label="显示密钥"><svg class="icon"><use href="#i-eye"/></svg></button>
+          </span>
+        </label>
+        <label class="field">
+          <span class="field-label">硅基流动 API Key <em>备用引擎，主引擎失败时自动切换</em></span>
+          <span class="input-with-eye">
+            <input type="password" id="siliconflowKey" autocomplete="off" spellcheck="false" placeholder="sk-...">
+            <button type="button" class="eye-btn" data-target="siliconflowKey" aria-label="显示密钥"><svg class="icon"><use href="#i-eye"/></svg></button>
+          </span>
+        </label>
+      </div>
+
+      <div class="setting-group">
+        <div class="group-title"><span class="group-badge map">地图</span> 高德开放平台</div>
+        <label class="field">
+          <span class="field-label">高德 Key 1 <em>主密钥 · Web 服务</em></span>
+          <span class="input-with-eye">
+            <input type="password" id="amapKey1" autocomplete="off" spellcheck="false" placeholder="32 位密钥">
+            <button type="button" class="eye-btn" data-target="amapKey1" aria-label="显示密钥"><svg class="icon"><use href="#i-eye"/></svg></button>
+          </span>
+        </label>
+        <label class="field">
+          <span class="field-label">高德 Key 2 <em>备用密钥 · 主密钥配额不足时自动切换</em></span>
+          <span class="input-with-eye">
+            <input type="password" id="amapKey2" autocomplete="off" spellcheck="false" placeholder="32 位密钥">
+            <button type="button" class="eye-btn" data-target="amapKey2" aria-label="显示密钥"><svg class="icon"><use href="#i-eye"/></svg></button>
+          </span>
+        </label>
+        <label class="field">
+          <span class="field-label">默认城市 <em>未指明城市时的查询地点</em></span>
+          <input type="text" id="defaultCity" autocomplete="off" placeholder="例如：北京">
+        </label>
+      </div>
+
+      <div class="test-row">
+        <button class="ghost-btn" id="testAmap"><svg class="icon"><use href="#i-map"/></svg> 测试高德接口</button>
+        <button class="ghost-btn" id="testLLM"><svg class="icon"><use href="#i-spark"/></svg> 测试大模型</button>
+        <span class="test-result" id="testResult"></span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="ghost-btn" id="clearKeys">清除本地密钥</button>
+      <div class="foot-right">
+        <button class="ghost-btn" id="cancelSettings">取消</button>
+        <button class="primary-btn" id="saveSettings"><svg class="icon"><use href="#i-check"/></svg> 保存设置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="config.js"></script>
+<script src="amap.js"></script>
+<script src="agent.js"></script>
+<script src="ui.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
