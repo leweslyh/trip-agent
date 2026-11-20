@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>出行小助手智能体</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🚕</span>
+      <div class="brand-text">
+        <h1>出行小助手</h1>
+        <p>DeepSeek × 高德 Web 服务 · 纯前端</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="status" id="statusBar">
+        <span class="dot"></span>
+        <span id="statusText">就绪</span>
+      </div>
+      <button class="settings-btn" id="btnOpenSettings" title="设置">⚙️ 设置</button>
+    </div>
+  </header>
+
+  <!-- 主体布局 -->
+  <main class="layout">
+    <!-- 左侧：智能体对话面板 -->
+    <aside class="chat-panel">
+      <div class="chat-header">
+        <span>🤖 智能出行助手</span>
+        <button class="icon-btn" id="btnClearChat" title="清空对话">🗑</button>
+      </div>
+
+      <div class="quick-actions">
+        <button class="chip" data-cmd="帮我搜索北京的故宫">🔍 关键字搜索</button>
+        <button class="chip" data-cmd="搜索天安门周边2公里的餐厅">📍 周边搜索</button>
+        <button class="chip" data-cmd="从天安门开车到颐和园怎么走">🛣 路径规划</button>
+        <button class="chip" data-cmd="北京今天天气怎么样">🌤 天气查询</button>
+        <button class="chip" data-cmd="展示天安门的静态地图">🗺 静态地图</button>
+        <button class="chip" data-cmd="我现在在哪个城市">🌐 IP定位</button>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="input-area">
+        <div class="input-row">
+          <textarea id="userInput" rows="1" placeholder="描述你的出行需求，例如：帮我找一下上海外滩附近的停车场"></textarea>
+          <button class="send-btn" id="btnSend" title="发送">➤</button>
+        </div>
+        <div class="input-hint">支持自然语言，AI 自动识别意图并调用对应功能</div>
+      </div>
+    </aside>
+
+    <!-- 右侧：结果展示面板 -->
+    <section class="result-panel">
+      <div class="result-placeholder" id="resultPlaceholder">
+        <div class="ph-icon">🗺️</div>
+        <p>搜索结果、路线规划、天气等信息将在这里展示</p>
+        <p class="ph-sub">试试在左侧输入你的出行需求</p>
+      </div>
+      <div class="result-card" id="resultCard">
+        <div class="result-card-header">
+          <span id="resultTitle">结果</span>
+          <button class="icon-btn" id="btnCloseResult" title="收起">×</button>
+        </div>
+        <div class="result-card-body" id="resultBody"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 设置弹窗 -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-mask" id="settingsMask"></div>
+    <div class="modal-box settings-box">
+      <div class="modal-header">
+        <span>⚙️ 密钥设置</span>
+        <button class="icon-btn" id="btnCloseSettings">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-tip">填写高德 Web 服务 Key 和 DeepSeek Key 即可使用。信息仅保存在浏览器本地，不会上传。</p>
+        <div class="form-group">
+          <label>高德 Web 服务 Key <span class="req">*</span></label>
+          <input type="text" id="cfgAmapKey" placeholder="例如：xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+          <a class="form-link" href="https://console.amap.com/dev/key/app" target="_blank" rel="noopener">申请高德 Key（选「Web服务」类型）↗</a>
+        </div>
+        <div class="form-group">
+          <label>DeepSeek API Key <span class="req">*</span></label>
+          <input type="password" id="cfgDeepseekKey" placeholder="例如：sk-xxxxxxxxxxxxxxxx">
+          <a class="form-link" href="https://platform.deepseek.com/" target="_blank" rel="noopener">申请 DeepSeek Key ↗</a>
+        </div>
+        <div class="form-actions">
+          <button class="btn-secondary" id="btnTestKeys">测试连接</button>
+          <button class="btn-primary" id="btnSaveSettings">保存</button>
+        </div>
+        <div class="settings-msg" id="settingsMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 静态地图放大弹窗 -->
+  <div class="modal" id="imgModal">
+    <div class="modal-mask" id="imgMask"></div>
+    <div class="modal-box img-box">
+      <div class="modal-header">
+        <span>🗺 静态地图</span>
+        <button class="icon-btn" id="btnCloseImg">×</button>
+      </div>
+      <div class="modal-body">
+        <img id="imgModalImg" alt="静态地图">
+        <div class="static-map-actions">
+          <button id="btnDownloadMap">下载图片</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="app.agent.js"></script>
+  <script src="app.ui.js"></script>
+</body>
+</html>
