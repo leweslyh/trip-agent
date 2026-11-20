@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>出行小助手 · DeepSeek × 高德</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="brand">
+        <div class="brand-logo">行</div>
+        <div class="brand-text">
+          <strong>出行小助手</strong>
+          <span>DeepSeek × 高德地图</span>
+        </div>
+      </div>
+      <button class="icon-btn" id="closeSidebar" title="收起侧边栏" aria-label="收起侧边栏">
+        <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+
+    <button class="new-chat" id="newChat">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      新建对话
+    </button>
+
+    <div class="conv-title">最近对话</div>
+    <div class="conv-list" id="convList"></div>
+
+    <div class="sidebar-foot">
+      <button class="ghost-btn" id="openSettings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 008 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 110-4h.09A1.65 1.65 0 004.6 8a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V2a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.14.6.66 1.06 1.29 1.06H21a2 2 0 110 4h-.09c-.63 0-1.15.46-1.29 1z"/></svg>
+        设置
+      </button>
+      <button class="ghost-btn" id="clearAll">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+        清空记录
+      </button>
+    </div>
+  </aside>
+
+  <div class="scrim" id="scrim"></div>
+
+  <!-- 主区域 -->
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="openSidebar" title="对话列表" aria-label="打开侧边栏">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="topbar-title" id="chatTitle">新的对话</div>
+      <div class="topbar-right">
+        <button class="city-chip" id="locateBtn" title="根据 IP 定位当前城市">
+          <svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <span id="cityText">定位</span>
+        </button>
+        <div class="model-pick">
+          <select id="modelSelect" aria-label="选择模型">
+            <option value="deepseek-flash">V4.1 Flash</option>
+            <option value="deepseek-v4-pro">V4 Pro</option>
+          </select>
+        </div>
+        <button class="icon-btn" id="exportChat" title="导出当前对话" aria-label="导出当前对话">
+          <svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="chat" id="chatScroll">
+      <div class="welcome" id="welcome">
+        <div class="welcome-logo">行</div>
+        <h1>去哪儿？我帮你查</h1>
+        <p>关键字搜地点、周边找美食、规划路线、看天气、出地图。数据来自高德开放平台，对话只存在本机。</p>
+        <div class="suggestions">
+          <button class="suggestion">
+            <span class="s-icon">🚗</span>
+            <span class="s-text"><strong>帮我规划从北京南站到首都机场的驾车路线</strong><em>看看要多久、走哪条高速</em></span>
+          </button>
+          <button class="suggestion">
+            <span class="s-icon">🍜</span>
+            <span class="s-text"><strong>西湖附近有什么好吃的</strong><em>周边搜索，按距离推荐</em></span>
+          </button>
+          <button class="suggestion">
+            <span class="s-icon">🌤</span>
+            <span class="s-text"><strong>杭州明天天气怎么样</strong><em>实时天气加三天预报</em></span>
+          </button>
+          <button class="suggestion">
+            <span class="s-icon">📍</span>
+            <span class="s-text"><strong>我在哪个城市</strong><em>用 IP 定位帮我看看</em></span>
+          </button>
+        </div>
+      </div>
+      <div class="messages" id="messages"></div>
+    </section>
+
+    <div class="composer-wrap">
+      <div class="notice" id="notice" hidden></div>
+      <div class="composer">
+        <textarea id="input" rows="1" placeholder="问我地点、路线、天气… (Enter 发送，Shift + Enter 换行)" spellcheck="false"></textarea>
+        <div class="composer-bar">
+          <div class="composer-left">
+            <button class="chip" id="keyChip" title="配置 API Key">
+              <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-1.5 1.5L15 8l3 3 2.5-2.5M11 11a5 5 0 10-3.5 8.5L9 17v-2h2v-2h2l1.5-1.5A5 5 0 0011 11z"/></svg>
+              <span id="keyChipText">未配置 Key</span>
+            </button>
+            <label class="switch" title="开启后会根据问题自动调用高德的地图能力">
+              <input type="checkbox" id="agentToggle" checked />
+              <span>出行模式</span>
+            </label>
+            <label class="switch switch-stream" title="流式输出回答">
+              <input type="checkbox" id="streamToggle" checked />
+              <span>流式输出</span>
+            </label>
+          </div>
+          <div class="composer-right">
+            <span class="counter" id="counter">0</span>
+            <button class="stop-btn" id="stopBtn" hidden>停止</button>
+            <button class="send-btn" id="sendBtn" disabled title="发送">
+              <svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 8 6 8-16-8z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="foot-hint">地点与天气数据来自高德开放平台，出行前请再次核实。</div>
+    </div>
+  </main>
+</div>
+
+<!-- 设置弹窗 -->
+<div class="modal" id="settingsModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>连接设置</h2>
+      <button class="icon-btn" id="closeSettings" aria-label="关闭">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <label class="field">
+        <span class="field-label">DeepSeek API Key</span>
+        <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" />
+        <em class="field-tip">仅保存在本机 localStorage，请求直接从浏览器发往 API。</em>
+      </label>
+      <label class="field">
+        <span class="field-label">API 地址</span>
+        <input id="baseUrl" type="text" placeholder="https://api.deepseek.com" />
+        <em class="field-tip">兼容 OpenAI 协议的服务也可填入，例如本地反代。</em>
+      </label>
+
+      <div class="field-group-title">高德开放平台</div>
+      <label class="field">
+        <span class="field-label">高德 Web 服务 Key</span>
+        <input id="amapKey" type="text" placeholder="控制台「应用管理 → 我的应用」创建「Web服务」类型的 Key" autocomplete="off" />
+        <em class="field-tip">地点搜索、路径规划、天气、IP 定位、静态地图全部走 Web 服务接口，不需要域名白名单和安全密钥。</em>
+      </label>
+      <div class="amap-test">
+        <button type="button" class="ghost-btn" id="testAmap">测试高德连接</button>
+        <div class="amap-test-result" id="amapTestResult" hidden></div>
+      </div>
+
+      <label class="field">
+        <span class="field-label">系统提示词</span>
+        <textarea id="systemPrompt" rows="3" placeholder="留空则使用内置的出行助手设定。"></textarea>
+      </label>
+      <label class="field">
+        <span class="field-label">温度 <b id="tempVal">1.0</b></span>
+        <input id="temperature" type="range" min="0" max="2" step="0.1" value="1" />
+        <em class="field-tip">值越低回答越稳定，越高越发散。开启深度思考后该项不生效。</em>
+      </label>
+      <div class="field">
+        <label class="switch field-switch" title="先推理再作答，思考过程会显示在回答上方">
+          <input type="checkbox" id="thinkingToggle" />
+          <span>深度思考（V4 思考模式）</span>
+        </label>
+        <em class="field-tip">开启后先推理再作答，更准但更慢；关闭则直接回答，响应更快。</em>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="ghost-btn" id="resetSettings">恢复默认</button>
+      <button class="primary-btn" id="saveSettings">保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="markdown.js"></script>
+<script src="travel.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
