@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f0e7" />
+  <meta name="description" content="漫游 · 基于 DeepSeek 与高德开放平台的纯前端出行小助手" />
+  <title>漫游 · 出行小助手</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="22" cy="22" r="20" stroke="currentColor" stroke-width="1.4" opacity=".45"/>
+            <circle cx="22" cy="22" r="13.5" stroke="currentColor" stroke-width="1.2" opacity=".8"/>
+            <path d="M27.8 16.2 24.6 24.6 16.2 27.8 19.4 19.4 27.8 16.2Z" fill="currentColor"/>
+            <circle cx="22" cy="22" r="2.3" fill="#f4f0e7"/>
+          </svg>
+        </div>
+        <div class="brand-text"><strong>漫游</strong><span>WAYFARER AI</span></div>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-label">工作台</p>
+        <button class="nav-item is-active" data-view="chat" type="button">
+          <svg class="ico"><use href="#i-chat"/></svg><span>旅行对话</span><span class="nav-badge">AI</span>
+        </button>
+        <button class="nav-item" data-view="travel" type="button">
+          <svg class="ico"><use href="#i-map"/></svg><span>出行助手</span><span class="nav-dot"></span>
+        </button>
+      </div>
+
+      <div class="sidebar-section quick-section">
+        <p class="sidebar-label">快捷出发</p>
+        <button class="quick-link" type="button" data-view="travel" data-prompt="帮我规划一条北京一日游路线，包含景点、路线和天气">
+          <span class="quick-glyph">01</span><span>北京一日游</span>
+        </button>
+        <button class="quick-link" type="button" data-view="travel" data-prompt="故宫附近有什么值得去的咖啡馆？帮我找几家">
+          <span class="quick-glyph">02</span><span>附近咖啡馆</span>
+        </button>
+        <button class="quick-link" type="button" data-view="travel" data-prompt="从国贸到颐和园怎么走？帮我规划一条最省时的路线">
+          <span class="quick-glyph">03</span><span>规划一条路线</span>
+        </button>
+        <button class="quick-link" type="button" data-view="travel" data-prompt="杭州明天天气怎么样？适合去哪里玩？">
+          <span class="quick-glyph">04</span><span>看天气去玩</span>
+        </button>
+      </div>
+
+      <div class="sidebar-spacer"></div>
+
+      <div class="service-card">
+        <div class="service-head"><span>连接状态</span><span class="service-live"><i></i>LIVE</span></div>
+        <div class="service-row"><span class="service-name"><i class="service-dot ds"></i>DeepSeek</span><span class="service-state" id="dsServiceState">V4.1 Flash</span></div>
+        <div class="service-row"><span class="service-name"><i class="service-dot amap"></i>高德地图</span><span class="service-state" id="amapServiceState">Web 服务</span></div>
+        <div class="service-row"><span class="service-name"><i class="service-dot sf"></i>硅基流动</span><span class="service-state" id="sfServiceState">语音识别</span></div>
+      </div>
+
+      <button class="sidebar-profile" id="sidebarSettings" type="button">
+        <span class="profile-avatar">漫</span>
+        <span class="profile-copy"><strong>本地演示空间</strong><small>设置 API Key</small></span>
+        <svg class="ico"><use href="#i-settings"/></svg>
+      </button>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <button class="icon-btn mobile-menu" id="mobileMenu" type="button" aria-label="打开菜单">
+          <svg class="ico"><use href="#i-menu"/></svg>
+        </button>
+        <div class="view-heading">
+          <span class="eyebrow" id="pageEyebrow">DEEPSEEK × TRAVELER</span>
+          <h1 id="pageTitle">旅行对话</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="model-chip" id="modelChip" type="button" title="模型设置">
+            <span class="live-dot"></span><span id="modelChipText">DeepSeek V4.1 Flash</span>
+          </button>
+          <button class="btn btn-ghost new-chat-btn" id="newChatBtn" type="button">
+            <svg class="ico"><use href="#i-plus"/></svg><span>新对话</span>
+          </button>
+          <button class="icon-btn" id="settingsBtn" type="button" aria-label="设置">
+            <svg class="ico"><use href="#i-settings"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="view view-chat is-active" id="chatView">
+          <div class="thread-scroll" id="chatScroll"><div class="thread" id="chatThread"></div></div>
+          <div class="composer-dock">
+            <div class="composer" data-composer="chat">
+              <div class="attachment-strip" data-attachments="chat"></div>
+              <textarea class="composer-input" data-input="chat" rows="1" placeholder="问我任何旅行问题，也可以上传图片或按住说话…"></textarea>
+              <div class="composer-bar">
+                <div class="composer-tools">
+                  <button class="tool-btn" type="button" data-action="attach" data-target="chat" aria-label="上传图片" title="上传图片"><svg class="ico"><use href="#i-image"/></svg></button>
+                  <button class="tool-btn" type="button" data-action="voice" data-target="chat" aria-label="语音输入" title="语音输入"><svg class="ico"><use href="#i-mic"/></svg></button>
+                  <span class="composer-divider"></span>
+                  <button class="toggle-pill is-on" type="button" data-toggle="web" data-target="chat"><svg class="ico"><use href="#i-globe"/></svg><span>联网</span></button>
+                  <button class="toggle-pill" type="button" data-toggle="think" data-target="chat"><svg class="ico"><use href="#i-sparkles"/></svg><span>思考</span></button>
+                </div>
+                <button class="send-btn" type="button" data-action="send" data-target="chat" aria-label="发送">
+                  <svg class="ico send-ico"><use href="#i-send"/></svg><svg class="ico stop-ico"><use href="#i-stop"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="composer-hint">DeepSeek 可能会犯错，请核查重要信息 · 支持图片理解与语音输入</p>
+          </div>
+        </section>
+
+        <section class="view view-travel" id="travelView">
+          <div class="mobile-tabs" id="mobileTabs">
+            <button type="button" class="is-active" data-mobile-panel="chat">对话</button>
+            <button type="button" data-mobile-panel="trip">地图与工具</button>
+          </div>
+          <div class="travel-grid">
+            <div class="travel-chat-pane">
+              <div class="thread-scroll" id="travelScroll"><div class="thread" id="travelThread"></div></div>
+              <div class="composer-dock">
+                <div class="composer" data-composer="travel">
+                  <div class="attachment-strip" data-attachments="travel"></div>
+                  <textarea class="composer-input" data-input="travel" rows="1" placeholder="告诉我目的地、时间或预算，例如：周末去杭州怎么玩？"></textarea>
+                  <div class="composer-bar">
+                    <div class="composer-tools">
+                      <button class="tool-btn" type="button" data-action="attach" data-target="travel" aria-label="上传图片" title="上传图片"><svg class="ico"><use href="#i-image"/></svg></button>
+                      <button class="tool-btn" type="button" data-action="voice" data-target="travel" aria-label="语音输入" title="语音输入"><svg class="ico"><use href="#i-mic"/></svg></button>
+                      <span class="composer-divider"></span>
+                      <button class="toggle-pill is-on" type="button" data-toggle="web" data-target="travel"><svg class="ico"><use href="#i-globe"/></svg><span>联网</span></button>
+                      <button class="toggle-pill is-on" type="button" data-toggle="think" data-target="travel"><svg class="ico"><use href="#i-sparkles"/></svg><span>深度</span></button>
+                    </div>
+                    <button class="send-btn" type="button" data-action="send" data-target="travel" aria-label="发送">
+                      <svg class="ico send-ico"><use href="#i-send"/></svg><svg class="ico stop-ico"><use href="#i-stop"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <p class="composer-hint">高德地图实时数据 · AI 规划仅供参考，请遵守当地交通规则</p>
+              </div>
+            </div>
+
+            <aside class="trip-panel" id="tripPanel">
+              <div class="trip-head">
+                <div class="trip-title"><span class="eyebrow">LIVE TRIP CANVAS</span><h2 id="canvasTitle">北京 · 城市中心</h2></div>
+                <div class="trip-actions">
+                  <button class="text-btn" type="button" id="openAmapBtn"><svg class="ico"><use href="#i-external"/></svg>高德打开</button>
+                  <button class="round-btn" type="button" id="canvasLocateBtn" aria-label="IP 定位" title="IP 定位"><svg class="ico"><use href="#i-location"/></svg></button>
+                </div>
+              </div>
+
+              <div class="map-card" id="mapCard">
+                <div class="map-skeleton" id="mapSkeleton"><div class="map-skeleton-grid"></div><span>正在铺开地图…</span></div>
+                <img class="map-image" id="mapImage" alt="高德静态地图" />
+                <div class="map-fallback" id="mapFallback">
+                  <svg class="ico"><use href="#i-map"/></svg><strong>地图暂时没有加载出来</strong><span>请检查高德 Key 或网络后重试</span>
+                  <button class="btn btn-small" type="button" id="retryMapBtn">重新加载</button>
+                </div>
+                <div class="map-topline">
+                  <span class="map-badge"><svg class="ico"><use href="#i-layers"/></svg>静态地图</span>
+                  <div class="weather-float" id="weatherFloat" hidden></div>
+                </div>
+                <div class="map-controls"><button type="button" id="zoomInBtn" aria-label="放大">+</button><button type="button" id="zoomOutBtn" aria-label="缩小">−</button></div>
+                <div class="map-caption" id="mapCaption"><span class="map-caption-pin"><svg class="ico"><use href="#i-pin"/></svg></span><span id="mapCaptionText">搜索地点，或直接问我“附近有什么”</span></div>
+                <div class="map-attrib">© 高德地图 · GS(2024)1310号</div>
+              </div>
+
+              <div class="canvas-toolbox">
+                <div class="tool-tabs" id="toolTabs">
+                  <button type="button" class="is-active" data-tool="search"><svg class="ico"><use href="#i-search"/></svg><span>搜索</span></button>
+                  <button type="button" data-tool="around"><svg class="ico"><use href="#i-pin"/></svg><span>周边</span></button>
+                  <button type="button" data-tool="route"><svg class="ico"><use href="#i-route"/></svg><span>路线</span></button>
+                  <button type="button" data-tool="weather"><svg class="ico"><use href="#i-sun"/></svg><span>天气</span></button>
+                  <button type="button" data-tool="web"><svg class="ico"><use href="#i-globe"/></svg><span>网页</span></button>
+                </div>
+                <div class="tool-form" id="toolForm"></div>
+                <div class="tool-results" id="toolResults"></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
+
+  <div class="voice-overlay" id="voiceOverlay" hidden>
+    <div class="voice-panel">
+      <div class="voice-orb"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="voice-copy"><strong id="voiceTitle">正在聆听…</strong><span id="voiceSub">说完后点击完成，自动转写为文字</span></div>
+      <span class="voice-timer" id="voiceTimer">00:00</span>
+      <div class="voice-actions">
+        <button class="voice-cancel" type="button" id="voiceCancel">取消</button>
+        <button class="voice-stop" type="button" id="voiceStop"><span class="voice-stop-square"></span>完成</button>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="modal" id="settingsDialog">
+    <form class="modal-card" id="settingsForm">
+      <div class="modal-head">
+        <div><span class="eyebrow">CONNECTIONS</span><h2>连接你的服务</h2></div>
+        <button class="icon-btn" type="button" data-close-dialog="settingsDialog" aria-label="关闭"><svg class="ico"><use href="#i-x"/></svg></button>
+      </div>
+      <p class="modal-desc">页面是纯前端演示，Key 只保存在当前浏览器的 localStorage 中。生产环境请改用服务端代理。</p>
+      <div class="field">
+        <label for="deepseekKeyInput">DeepSeek API Key</label>
+        <div class="secret-input"><input id="deepseekKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="sk-..." /><button type="button" class="reveal-btn" data-reveal="deepseekKeyInput">显示</button></div>
+      </div>
+      <div class="field">
+        <label for="siliconKeyInput">硅基流动 API Key <span>语音转文字</span></label>
+        <div class="secret-input"><input id="siliconKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="sk-..." /><button type="button" class="reveal-btn" data-reveal="siliconKeyInput">显示</button></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="amapKey1Input">高德 Key 1</label><input id="amapKey1Input" type="text" autocomplete="off" spellcheck="false" /></div>
+        <div class="field"><label for="amapKey2Input">高德 Key 2 <span>备用</span></label><input id="amapKey2Input" type="text" autocomplete="off" spellcheck="false" /></div>
+      </div>
+      <div class="field">
+        <label for="modelSelect">对话模型</label>
+        <select id="modelSelect">
+          <option value="deepseek-flash">DeepSeek V4.1 Flash · 推荐，支持图片</option>
+          <option value="deepseek-v4-pro">DeepSeek V4 Pro · 纯文本</option>
+        </select>
+      </div>
+      <div class="modal-note"><svg class="ico"><use href="#i-sparkles"/></svg><span>DeepSeek 负责理解与规划，高德负责地图与实时数据，硅基流动负责语音转写。</span></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" id="resetSettingsBtn">恢复内置 Key</button>
+        <button class="btn btn-primary" type="submit">保存设置</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal article-modal" id="articleDialog">
+    <div class="modal-card article-card">
+      <div class="modal-head">
+        <div><span class="eyebrow">DEEPSEEK FETCH</span><h2 id="articleTitle">网页正文</h2></div>
+        <button class="icon-btn" type="button" data-close-dialog="articleDialog" aria-label="关闭"><svg class="ico"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="article-meta" id="articleMeta"></div>
+      <div class="article-body markdown" id="articleBody"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" id="copyArticleBtn"><svg class="ico"><use href="#i-copy"/></svg>复制正文</button>
+        <button class="btn btn-primary" type="button" id="askAboutArticleBtn"><svg class="ico"><use href="#i-sparkles"/></svg>让 AI 解读</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="svg-sprite" aria-hidden="true">
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v7A2.5 2.5 0 0 1 17 16h-5.2l-4.4 3.1c-.5.4-1.2 0-1.2-.6V16H7a2.5 2.5 0 0 1-2.5-2.5v-7Z"/><path d="M8 8.5h8M8 11.5h5.5"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="m9 4-5 2.2v13L9 17l6 3 5-2.2v-13L15 7 9 4Z"/><path d="M9 4v13M15 7v13"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s6.5-5.3 6.5-10.5a6.5 6.5 0 1 0-13 0C5.5 15.7 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.4"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18H14a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h.5"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M6.5 18h11a3.5 3.5 0 0 0 .5-6.97A5.5 5.5 0 0 0 7.2 9.6 4.2 4.2 0 0 0 6.5 18Z"/></symbol>
+    <symbol id="i-rain" viewBox="0 0 24 24"><path d="M6.5 15h11a3.5 3.5 0 0 0 .5-6.97A5.5 5.5 0 0 0 7.2 6.6 4.2 4.2 0 0 0 6.5 15Z"/><path d="m8 18-1 2M12 18l-1 2M16 18l-1 2"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.5"/><path d="m4.5 17 4.7-4.6a1.4 1.4 0 0 1 1.9 0l2.3 2.2 1.8-1.8a1.4 1.4 0 0 1 1.9 0l2.4 2.3"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1-2.9 2.9-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21h-4v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1-2.9-2.9.1-.1A1.6 1.6 0 0 0 4.6 15a1.6 1.6 0 0 0-1.5-1H3v-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1 2.9-2.9.1.1A1.6 1.6 0 0 0 9 4.6a1.6 1.6 0 0 0 1-1.5V3h4v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1 2.9 2.9-.1.1a1.6 1.6 0 0 0-.3 1.8 1.6 1.6 0 0 0 1.5 1h.1v4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.2 2.4 3.4 5.4 3.4 8.5s-1.2 6.1-3.4 8.5c-2.2-2.4-3.4-5.4-3.4-8.5S9.8 5.9 12 3.5Z"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.3 4.2L17.5 8.5l-4.2 1.3L12 14l-1.3-4.2L6.5 8.5l4.2-1.3L12 3Z"/><path d="m18.5 14 .8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/><path d="m5.5 14 .6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6.6-1.7Z"/></symbol>
+    <symbol id="i-location" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.3"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M19 14v4.5A1.5 1.5 0 0 1 17.5 20h-12A1.5 1.5 0 0 1 4 18.5v-12A1.5 1.5 0 0 1 5.5 5H10"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m4 12 8 4.5 8-4.5M4 16l8 4.5 8-4.5"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 5v5h-5M4 19v-5h5"/><path d="M6.1 8A7.5 7.5 0 0 1 19.4 9.5M17.9 16A7.5 7.5 0 0 1 4.6 14.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></symbol>
+    <symbol id="i-car" viewBox="0 0 24 24"><path d="m5 16-1-5 2-5h12l2 5-1 5H5Z"/><path d="M4 16h16v3H4zM7 8h10"/><circle cx="7.5" cy="13.5" r=".8"/><circle cx="16.5" cy="13.5" r=".8"/></symbol>
+    <symbol id="i-walk" viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="m10 21 2-6-3-3 1-5 4 3 3 1M12 9l4 3 1 5M9 15l-2 4"/></symbol>
+    <symbol id="i-bus" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 11h14M8 18v2M16 18v2"/><circle cx="9" cy="14.5" r=".8"/><circle cx="15" cy="14.5" r=".8"/></symbol>
+    <symbol id="i-bike" viewBox="0 0 24 24"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="m9 17 4-7 3 7M11 7h4M8 10h5"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.5 3h3l1.5 4-2 1.5a13 13 0 0 0 6.5 6.5l1.5-2 4 1.5v3A2.5 2.5 0 0 1 18.5 20 15.5 15.5 0 0 1 4 5.5 2.5 2.5 0 0 1 6.5 3Z"/></symbol>
+  </svg>
+
+  <script src="./app.js"></script>
+</body>
+</html>
