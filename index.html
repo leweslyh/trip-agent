@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>出行小助手 · DeepSeek × 高德</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- 顶部栏 -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-logo">🚕</span>
+        <div class="brand-text">
+          <h1>出行小助手</h1>
+          <p>DeepSeek 大模型 × 高德开放平台</p>
+        </div>
+      </div>
+      <button id="btnSettings" class="icon-btn" title="设置">⚙️</button>
+    </header>
+
+    <!-- 快捷功能 -->
+    <nav class="quickbar" id="quickbar">
+      <button class="chip" data-text="帮我搜索一下北京故宫的位置">🔍 关键字搜索</button>
+      <button class="chip" data-text="我想在当前位置周边找咖啡店">📍 周边搜索</button>
+      <button class="chip" data-text="帮我规划从天安门到鸟巢的驾车路线">🚗 路径规划</button>
+      <button class="chip" data-text="北京今天天气怎么样？">🌤️ 天气查询</button>
+      <button class="chip" data-text="在地图上展示天安门的位置">🗺️ 静态地图</button>
+      <button class="chip" data-text="帮我定位一下我当前的IP位置">🛰️ IP定位</button>
+    </nav>
+
+    <!-- 对话区 -->
+    <main class="chat" id="chat">
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">🤖</div>
+        <h2>你好，我是你的出行小助手</h2>
+        <p>用自然语言告诉我你的出行需求，我会帮你查询地点、规划路线、查询天气等。开始前请先在右上角配置 API Key。</p>
+      </div>
+    </main>
+
+    <!-- 输入区 -->
+    <footer class="inputbar">
+      <div class="input-wrap">
+        <textarea id="input" rows="1" placeholder="输入出行需求，例如：帮我找一下上海外滩附近的酒店"></textarea>
+        <button id="btnSend" class="send-btn" title="发送">➤</button>
+      </div>
+      <div class="input-hint">Enter 发送 · Shift+Enter 换行</div>
+    </footer>
+  </div>
+
+  <!-- 设置弹窗 -->
+  <div class="modal-mask" id="modalMask" hidden>
+    <div class="modal">
+      <div class="modal-head">
+        <h2>⚙️ 配置</h2>
+        <button class="icon-btn" id="btnCloseSettings" title="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>DeepSeek API Key <span class="req">*</span></label>
+          <input type="password" id="cfgDeepseekKey" placeholder="sk-..." autocomplete="off" />
+        </div>
+        <div class="field">
+          <label>DeepSeek 接口地址</label>
+          <input type="text" id="cfgDeepseekBase" placeholder="https://api.deepseek.com" />
+        </div>
+        <div class="field">
+          <label>DeepSeek 模型</label>
+          <input type="text" id="cfgDeepseekModel" placeholder="deepseek-chat" />
+        </div>
+        <div class="field">
+          <label>CORS 代理前缀（可选）</label>
+          <input type="text" id="cfgProxy" placeholder="留空表示直连，例如 https://your-proxy/?url=" />
+          <p class="hint">由于浏览器跨域限制，直连 DeepSeek 会被拦截。可在此填写代理前缀解决。</p>
+        </div>
+        <div class="field">
+          <label>高德 Web服务 Key <span class="req">*</span></label>
+          <input type="text" id="cfgAmapKey" placeholder="高德开放平台申请的 Web服务 Key" autocomplete="off" />
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" id="btnClearStorage">清除配置</button>
+        <button class="btn primary" id="btnSaveSettings">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/amap.js"></script>
+  <script src="js/agent.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
