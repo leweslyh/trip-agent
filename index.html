@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>出行小助手 · DeepSeek + 高德开放平台</title>
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">行</div>
+      <div class="brand-text">
+        <h1>出行小助手</h1>
+        <p>DeepSeek 大模型 × 高德开放平台 · 纯前端智能体</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="status" id="status-chips">
+        <span class="chip" id="chip-ds">DeepSeek 未配置</span>
+        <span class="chip" id="chip-amap">高德 Key 未配置</span>
+      </div>
+      <button class="btn ghost" id="btn-clear" type="button">清空对话</button>
+      <button class="btn primary" id="btn-settings" type="button">设置</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="chat-pane">
+      <div class="messages" id="messages">
+        <div class="welcome" id="welcome">
+          <h2>去哪儿，我帮你安排</h2>
+          <p>搜索地点、找周边、算路线、查天气、看地图、定位当前位置，一句话搞定。</p>
+          <div class="examples" id="examples">
+            <button class="example" type="button" data-prompt="帮我搜索北京南锣鼓巷附近的咖啡馆">搜索北京南锣鼓巷附近的咖啡馆</button>
+            <button class="example" type="button" data-prompt="我现在在哪？帮我看一下当前城市的天气">先定位我在哪，再看天气</button>
+            <button class="example" type="button" data-prompt="从北京西站到首都机场T3怎么走？看一下驾车和地铁的方案">北京西站到首都机场怎么走</button>
+            <button class="example" type="button" data-prompt="搜索杭州西湖附近的酒店，并在地图上标出来">西湖附近酒店 + 地图</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer">
+        <div class="quick-row" id="quick-row">
+          <button class="quick" type="button" data-prompt="帮我搜索「西湖」">关键字搜索</button>
+          <button class="quick" type="button" data-prompt="搜索我周边 1 公里内的餐厅">周边搜索</button>
+          <button class="quick" type="button" data-prompt="帮我规划从天安门到颐和园的驾车路线">路径规划</button>
+          <button class="quick" type="button" data-prompt="查询北京今天的天气">天气查询</button>
+          <button class="quick" type="button" data-prompt="把当前位置显示在地图上">静态地图</button>
+          <button class="quick" type="button" data-prompt="通过 IP 定位我现在在哪个城市">IP 定位</button>
+        </div>
+        <form class="input-row" id="chat-form">
+          <textarea id="input" rows="1" placeholder="例如：从杭州东站到西湖怎么走？附近有什么好吃的？"></textarea>
+          <button class="btn primary send" id="btn-send" type="submit">发送</button>
+        </form>
+        <div class="composer-tip">Enter 发送 · Shift + Enter 换行 · 结果仅供参考，出行请以实际路况为准</div>
+      </div>
+    </section>
+
+    <aside class="side-pane">
+      <div class="card map-card">
+        <div class="card-head">
+          <div>
+            <h2 id="map-title">静态地图</h2>
+            <p class="muted" id="map-sub">由高德静态地图 API 实时渲染</p>
+          </div>
+          <div class="card-actions">
+            <button class="btn tiny ghost" id="btn-map-refresh" type="button">重绘</button>
+            <a class="btn tiny ghost disabled" id="btn-map-open" href="#" target="_blank" rel="noopener">高德打开</a>
+          </div>
+        </div>
+        <div class="map-frame" id="map-frame">
+          <img id="map-img" alt="高德静态地图" />
+          <div class="map-placeholder" id="map-empty">
+            <div class="pulse"></div>
+            <p>还没有地图数据</p>
+            <span>试试搜索地点或规划一条路线</span>
+          </div>
+          <div class="map-loading" id="map-loading">地图加载中…</div>
+        </div>
+        <div class="map-caption" id="map-caption"></div>
+      </div>
+
+      <div class="card loc-card">
+        <div class="card-head">
+          <div>
+            <h2>当前位置</h2>
+            <p class="muted">高德 IP 定位 + 逆地理编码</p>
+          </div>
+          <button class="btn tiny ghost" id="btn-relocate" type="button">重新定位</button>
+        </div>
+        <div class="loc-body" id="loc-body">
+          <p class="muted">尚未定位</p>
+        </div>
+      </div>
+
+      <div class="card tip-card">
+        <h2>能力清单</h2>
+        <ul class="cap-list">
+          <li><b>关键字搜索</b><span>地点 / POI 检索、城市限定</span></li>
+          <li><b>周边搜索</b><span>按半径圈定范围找店</span></li>
+          <li><b>路径规划</b><span>驾车 / 步行 / 骑行 / 公交</span></li>
+          <li><b>天气查询</b><span>实况 + 未来 4 天预报</span></li>
+          <li><b>静态地图</b><span>标注点、路线一次性出图</span></li>
+          <li><b>IP 定位</b><span>无定位权限也能识别城市</span></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div class="modal-mask hidden" id="settings-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>设置</h2>
+      <button class="icon-btn" id="btn-close-settings" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="modal-body">
+      <section class="form-section">
+        <h3>DeepSeek</h3>
+        <label>
+          <span>API Key</span>
+          <input type="password" id="ds-key" placeholder="sk-..." autocomplete="off" />
+        </label>
+        <label>
+          <span>接口地址</span>
+          <input type="text" id="ds-base" placeholder="https://api.deepseek.com" />
+        </label>
+        <label>
+          <span>模型</span>
+          <input type="text" id="ds-model" placeholder="deepseek-chat" />
+        </label>
+      </section>
+      <section class="form-section">
+        <h3>高德开放平台</h3>
+        <label>
+          <span>Web 服务 Key</span>
+          <input type="password" id="amap-key" placeholder="高德 Web 服务 Key（不是 JS API Key）" autocomplete="off" />
+        </label>
+        <label>
+          <span>跨域代理（可选）</span>
+          <input type="text" id="amap-proxy" placeholder="如 https://corsproxy.io/?url={url}" />
+        </label>
+        <p class="hint">
+          通常无需填写：高德接口允许跨域直连，失败时程序还会自动尝试 JSONP。
+          仅当网络环境限制直连时，再填写代理前缀，用 <code>{url}</code> 占位，如 <code>https://your-proxy/?url={url}</code>。
+        </p>
+      </section>
+      <section class="form-section">
+        <h3>偏好</h3>
+        <label>
+          <span>默认城市</span>
+          <input type="text" id="default-city" placeholder="如：北京" />
+        </label>
+        <p class="hint">Key 仅保存在本地浏览器 localStorage，不会上传到任何服务器。</p>
+      </section>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="btn-cancel-settings" type="button">取消</button>
+      <button class="btn primary" id="btn-save-settings" type="button">保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/amap.js"></script>
+<script src="js/amap-ext.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/agent.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
